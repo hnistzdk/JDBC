@@ -22,7 +22,10 @@ public class Conn {
     public static void main(String[] args)
     {
         //String sql = "SELECT * FROM student ";
-        String sql = "SELECT * FROM student WHERE sName='李俊'";
+        String sql = "SELECT * FROM student WHERE sName='李俊'";//查找
+        String insertSql="INSERT INTO student(sNo,sName,sex,age,dept) VALUES('201201009','王毅','男',18,'外语')";//添加
+        String updateSql="UPDATE student SET dept='金融' WHERE sNo='201201009'";//修改
+        String deleteSql="DELETE FROM student WHERE sName='王毅'";
         try (
             //建立连接
             Connection conn = DriverManager.getConnection(url, user, password);
@@ -42,6 +45,12 @@ public class Conn {
                     //String dept=resultSet.getString("dept");
                     System.out.println(no+" "+name+" "+sex+" "+age+" ");
                 }
+                int count=statement.executeUpdate(insertSql);
+                System.out.println("添加"+count+"条数据到表中");
+                count=statement.executeUpdate(updateSql);
+                System.out.println("修改了表中"+count+"条数据");
+                count=statement.executeUpdate(deleteSql);
+                System.out.println("删除了表中"+count+"条数据");
             }
         catch (Exception e) {
             e.printStackTrace();
