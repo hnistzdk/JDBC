@@ -1,0 +1,77 @@
+package JBDC;
+
+import java.sql.*;
+
+/**
+ * @Description
+ * @Author zdk
+ * @Date 2020/10/26 18:44
+ *
+ * 同一时间，一个Statement(PreparedStatement)对象只能打开一个结果集，当重新使用一个
+ * Statement(PreparedStatement)对象时，将会关闭之前生成的任何结果集。意味着如果想对先前的结果集继续进行处理
+ * 其他的查询语句就必须使用另外的Statement(PreparedStatement)对象，否则第二个查询语句将会使尚在继续处理的结果
+ * 集丢失。也就是说，执行SQL语句时将关闭所调用的Statement(PreparedStatement)对象当前打开的结果集，所以在重新
+ * 执行Statement(PreparedStatement)对象之前，必须完成对当前ResultSet对象(结果集)的处理
+ */
+public class Conn1 {
+    private static String driver = "com.mysql.cj.jdbc.Driver";
+    private static String url = "jdbc:mysql://localhost:3306/StudentScore?useUnicode=true&characterEncoding=UTF-8";
+    private static String user = "root";
+    private static String password = "root";
+
+    public static void main(String[] args) {
+        //String sql = "SELECT * FROM student ";
+        String selectSql = "SELECT * FROM student WHERE sName=?";//动态查找
+        String insertSql = "INSERT INTO student(sNo,sName,sex,age,dept) VALUES(?,?,?,?,?)";//动态添加
+        String updateSql = "UPDATE student SET dept=? WHERE sNo=?";//动态修改
+        String deleteSql = "DELETE FROM student WHERE sName=?";//动态删除
+        Connection conn = null;
+        //用PreparedStatement对象才能进行动态修改数据
+        PreparedStatement ps = null;
+        ResultSet resultSet = null;//结果集
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(url, user, password);
+            ps = conn.prepareStatement(selectSql);//创建PreparedStatement对象
+            ps.setString(1, "李俊");
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                String no = resultSet.getString("sNo");
+                String name = resultSet.getString("sName");
+                String sex = resultSet.getString("sex");
+                int age = resultSet.getInt("age");
+                String dept = resultSet.getString("dept");
+                System.out.println(no + " " + name + " " + sex + " " + age + " " + dept);
+            }
+            ps = conn.prepareStatement(insertSql);
+            ps.setString(1, "201201010");
+            ps.setString(2, "张三");
+            ps.setString(3, "男");
+            ps.setInt(4, 30);
+            ps.setString(5, "教授");
+            int count = ps.executeUpdate();//执行SQL语句的添加操作(括号里一定不能加参数，加了就报错)
+            System.out.println("添加" + count + "条数据到表中");
+
+            ps = conn.prepareStatement(updateSql);
+            ps.setString(1, "软件工程");
+            ps.setString(2, "201201001");
+            count = ps.executeUpdate();//执行SQL语句的修改操作(括号里一定不能加参数，加了就报错)
+            System.out.println("修改了表中" + count + "条数据");
+
+            ps = conn.prepareStatement(deleteSql);
+            ps.setString(1, "周武");
+            count = ps.executeUpdate();//执行SQL语句的删除操作(括号里一定不能加参数，加了就报错)
+            System.out.println("删除了表中" + count + "条数据");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(resultSet!=null) resultSet.close();
+                if(ps!=null) ps.close();
+                if(conn!=null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
