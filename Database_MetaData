@@ -1,0 +1,39 @@
+package JBDC;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+/**
+ * @Description
+ * @Author zdk
+ * @Date 2020/10/27 18:14
+ *
+ * 获取元数据,即获取有关数据库和表结构的信息
+ * DatabaseMetaData接口主要是用来获得关于数据库的信息,如数据库中的所有表名、系统函数、关键字、
+ * 数据库产品名和数据库支持的JDBC驱动程序名等
+ * 还提供了ResultSetMetaData接口用来获取特定结果集ResultSet的信息，如字段名和字段个数
+ *
+ */
+public class Database_MetaData {
+    private static String driver = "com.mysql.cj.jdbc.Driver";
+    private static String url = "jdbc:mysql://localhost:3306/StudentScore?useUnicode=true&characterEncoding=UTF-8";
+    private static String user = "root";
+    private static String password = "root";
+
+    public static void main(String[] args)
+    {
+        try(Connection conn= DriverManager.getConnection(url,user, password))
+        {
+            Class.forName(driver);
+            //创建所连接的数据库的元数据对象
+            java.sql.DatabaseMetaData dmd=conn.getMetaData();
+            System.out.println("数据库名："+dmd.getDatabaseProductName());
+            System.out.println("数据库版本："+dmd.getDatabaseProductVersion());
+            System.out.println("驱动程序名："+dmd.getDriverName());
+            System.out.println("数据库URL："+dmd.getURL());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
