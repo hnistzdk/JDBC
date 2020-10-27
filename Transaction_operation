@@ -26,6 +26,7 @@ public class Transaction_operation {
         Connection conn =null;
         Statement statement=null;
         ResultSet resultSet=null;
+        boolean ynRollback=true;
         try
         {
             //注册JDBC驱动程序
@@ -35,8 +36,13 @@ public class Transaction_operation {
             boolean autoCommit=conn.getAutoCommit();//获得是否为自动提交模式
             conn.setAutoCommit(false);//设置为非自动提交模式
             statement.executeUpdate(insertSql1);
+            Savepoint s1=conn.setSavepoint();//设置名为s1的保存点
             statement.executeUpdate(insertSql2);
             statement.executeUpdate(insertSql3);
+            if(ynRollback)
+            {
+                conn.rollback(s1);//回滚到保存点s1的位置
+            }
             conn.commit();//事务完成后 执行提交操作
             conn.setAutoCommit(autoCommit);//重新设置为自动提交
             resultSet=statement.executeQuery(selectSql);//结果集查询
