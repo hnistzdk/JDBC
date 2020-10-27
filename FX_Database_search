@@ -1,0 +1,77 @@
+package JBDC;/**
+ * @Description
+ * @Author zdk
+ * @Date 2020/10/27 19:22
+ */
+
+import javafx.application.Application;
+import javafx.scene.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class FX_Database_search extends Application {
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    private TextField textField1=new TextField();
+    private TextField textField2=new TextField();
+    private Button bt=new Button("查看");
+    @Override
+    public void start(Stage primaryStage) {
+        HBox hBox=new HBox(10);
+        textField1.setPromptText("输入学号");
+        textField2.setPromptText("输入课程号");
+        Label label1=new Label("学号：");
+        Label label2=new Label("课程号");
+        hBox.getChildren().addAll(label1,textField1,label2,textField2,bt);
+        bt.setOnAction(e->
+            {
+                String driver="com.mysql.cj.jdbc.Driver";
+                String sNo=textField1.getText();
+                String cNo=textField2.getText();
+                String url = "jdbc:mysql://localhost:3306/StudentScore?useUnicode=true&characterEncoding=UTF-8";
+                String user = "root";
+                String password = "root";
+String sql="SELECT sName,cName,grade"+" FROM student a,course b,score c"
++" WHERE a.sNo=c.sNo AND b.cNo=c.cNo"+" AND c.sNo='"+sNo+"' AND c.cNo='"+cNo+"'";
+                try (
+                    Connection connection= DriverManager.getConnection(url,user,password);
+                    Statement statement=connection.createStatement();
+                    ResultSet resultSet=statement.executeQuery(sql);
+                )
+                {
+                    Class.forName(driver);
+                    if(resultSet.next())
+                    {
+                        String sname=resultSet.getString("sName");
+                        String cname=resultSet.getString("cName");
+                        int grade=resultSet.getInt("grade");
+                        Alert alert=new Alert(Alert.AlertType.INFORMATION);//创建信息对话框
+                        alert.setTitle("查询结果");
+                        alert.setHeaderText(null);
+                        alert.setContentText(sname+" "+cname+" "+grade);
+                        alert.showAndWait();
+                    }
+                }
+                catch (Exception e1){
+                    e1.printStackTrace();
+                }
+            }
+        );
+        Scene scene=new Scene(hBox);
+        primaryStage.setTitle("数据库查询");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+}
